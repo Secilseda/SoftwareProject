@@ -1,0 +1,77 @@
+
+
+Bu Projede, ASP.NET Core ile projemi geliþtireceðim. Projem birden fazla katmandan oluþacaktýr. Bu dökümantasyonda aþamlarla bu katmanlarý açýklayacaðým. Öncelikle Asp.Net Core'dan bahsedeyim.
+
+ASP.NET Core:ASP.NET Core, Microsoft tarafýndan geliþtirilen açýk kaynak kodlu bir yazýlým geliþtirme platformudur.2016 yýlýnda tanýtýlan teknoloji, ASP.NET tabanlý uygulamalar geliþtirmek için en iyi alternatiflerden birisidir. Web uygulamasý geliþtirebilmek için bir çok teknoloji bulunmaktadýr. ASP.NET Core bu teknolojilerin baþýnda gelmektedir.
+
+Projenin 1. katmaný olan Web katmanýmýzla baþlayalým.
+
+1.SoftwareProject.Web Projesi açýlýr burada gerekli web kýsmýnda ki kodlar yürütülür.
+ 1.1.
+
+2.SoftwareProject.Kernel(Class Library Core)Projesi eklenir.
+ 2.1.Diðer açýlacak olan bütün katmanlar bu kernel'dan beslenicektir. Her þey soyut olacak ve Kernel projedeki bütün entitylere buradan miras verecektir.
+ 2.2.Entity klasörü açýlýr.
+2.3.Entity klasörü altýnda Abstract klasörü açýlýr. Ýçerisine IEntity adýnda bir interface class eklenir bu class'ýn içerisine vereceðimiz id property'si belli olmayan bir tiptir bu yüzden esnek generic bir tip <T> olarak belirtiyoruz.
+ 2.4.Entity klasörü altýnda Concrete klasörü açýlýr. KernelEntity classý açýlýr ve IEntity'den kalýtým alýr. Kalýtým vasýtasýyla IEntity'nin içerisinde olan Id property'si burada ki sýnýfta Guid tipini alýr.
+    2.5.KernelEntity class'ýn taþýdýðý özellikleri (property) ekleriz.
+     2.6. Enums adýnda bir klasör açýlýr. Ýçerisine Status adýnda bir class açýlýr. Bu class bize rollerde gerekecek bazý durumlarý gösterir. Enum tipinde olur. KernelEntity Class'ýnýn en tepesine de yazabilirdim ama bir class'ýn bir entity'si olur mantýðýný çöpe atmak istemedim bu sebepten dolayý her class'a bir entity açmayý uygun gördüm.
+
+3.SoftwareProject.Kernel Projesine Mapping Klasörü açýlýr.
+ 3.1.KernelMap Class'ý açýlýr.
+  3.2.KernelMap Class'ý KernelEntity Class'ýný Mapplemek için kullanacaðýz. Abstract olarak belirttiðimiz bu class'ta bir tane methodumuz bulunuyor. Bu methodu overlide ediceðiz abstract olarak iþaretlememizin sebeplerinden bir tanesidir. Ýkinci olarak, Mapping iþlemi Property'lerin Database'de görüntülenmelerinde þekil verdiðimiz bölümdür. Tabii ki Database'de ayný karþýlýklarý olacak þekilde yaratýlmalýdýrlar.
+   3.3.KernelMap Class'ý IEntityTypeConfiguration Class'ýndan Kalýtým alýyor.Microsoft.EntityFrameworkCore.Find and install latest versiyonundan implement ettik=>IEntityTypeConfiguration <T> tipinin yapýlandýrýlmasýna izin verir. Bir EntityTypeConfiguration, DbModelBuilder üzerindeki Entity yöntemi aracýlýðýyla elde edilebilir veya EntityTypeConfiguration öðesinden türetilen özel bir tür, DbModelBuilder üzerindeki Configurations özelliði üzerinden kaydedilebilir.
+
+4.SoftwareProject.Kernel Projesine Repository klasörü açýlýr.
+    4.1.Repository Klasörü altýna Abstract Klasörü açýlýr.
+     4.2.Bu klasörün içerisine IKernelRepository Class'ý açýlýr. Diðer açýlacak olan Repository'lere kalýtým verilecek class olucaktýr. Interface tanýmlanmýþtýr. Bu Soyut sýnýfta gövdesiz methotlar yazýlacaktýr. Açýlacak olan Repository class'larýnda kalýtým vasýtasýyla bu gövdesiz methotlar hayata geçirilecektir.
+
+5.SoftwareProject.Entities (Class Library Core)Projesi açýlýr.
+ 5.1.Entity klasörü açýlýr. Post Class'ý açýlýr.
+  5.2.Bu Class farklý proje katmanýnda olan KernelEntity'den kalýtým alýr.
+   5.3.Ýçerisinde Kendi özellikleri bulunacak property'ler eklenir.
+
+6.SoftwareProject.DataAccess (Class Library Core) Projesi eklenir.
+ 6.1.Bu katman Database ile ilgili iþlemleri yapacaðýmýz katmandýr.
+  6.2.Böl parçala yönet mantýðý altýnda Context, Repository ve KernelRepository adýnda üç klasör açýlýr. Context klasörüne ApplicationDbContext class'ý açýlýr. Microsoft.EntityFrameworkCore.SqlServer projemize eklenir. Bunu sebebi database baðlantýmýzý kurarken gerekli kütüphaneleri class'larý Microsoft.EntityFrameworkCore.SqlServer bize kolaylýkla sunabilmesi içindir.
+   6.3.ApplicationDbContext class, Microsoft.EntityFrameworkCore.SqlServer'ýn içerisinde bulunan DbContext'ten miras alýyor.
+   6.4.Repository klasörünün içerisine Abstract klasörü açýlýr. IPostRepository class'ý eklenir. Bu class, IKernelRepository'den kalýtým alýr tip olarak içerisine Post'u alýr. Amacý ise Post entity'e ait özellikleri burada öbekleyeceðiz.
+   6.5.Concrete klasörü içerisine EfPostREpository açýlýr.KernalRepository klasörünün içerisinde ki EfKErnelRepositoryden kalýtým alýr. Tipine Post alýr ve son olarak IPostRepositoryden kalýtým alýr.
+   6.6.KernelRepository klasörü açýlýr. EfKernelRepository class'ý açýlýr, farklý katmanda olan IKernelRepositoryden miras alýr ve bütün kernel'a ait gövdesiz metotlarý burada iþleme alýrýz.
+
+7.SoftwareProject.Map Projesi eklenir.
+    7.1.Mapping klasörü açýlýr, altýna entities klasörü açýlýr. Ýçerisine Maplenicek  class'lar eklenir.
+     7.2.Kernel katmanýnda bulunan (Configure )metot içerisine kerneldaki bütün entity'lerde ortak olan mappinglerin yapýlmasý iþleme alýnýr.
+
+8.Startup'ta ApplicationDbContext'baðlantýmýzý ekleriz. Ayný zamanda appsettings'e de locallsql baðlantýmýzý database ismimizi ekleriz.
+
+9.SoftwareProject.Accociate katmaný açýlýr.Burada VM DTO'lar AutoMapperlar olacak.
+ 9.1.Üç klasör açýlýr.Bunlar Dtos, Helpers ve VMs.
+  9.2.Dtos:Açýlan her Entity'in Dto'larý burada öbeklenir.
+   9.3.Helpers:FileExtension adýnda class açýlýr ve resim yollarýný vericek kodlar yazýlýr.
+    9.3.VMs:Ortak kullanýlacak olan özellikleri getirme iþlemine yarar.
+
+10.SoftwareProject.Business(Ýþ katmaný)açýlýr. AutoMapper burada kullanýlacak.Business katmanýna Associate katmanýný referans olarak ekledik. Startup'a da AutoMapper'ý ekledik. Paket olarak Microsoft.AspNetCore.Hosting paketini yükledik.
+ 10.1.AutoMapper adýnda klasör açtýk içerisine AutoMapping class'ýný ekledik. Bütün entity'leri  Dto'larýmýzla, AutoMapper sayesinde otomatik olarak karþýlaþtýracaðýz.
+  10.2.Logger klasörü açtýk.
+   10.3.Logger Provide ve System Logger adýnda iki class açtýk.
+    10.4.ILoggingProvider interface'i istenilen logging kategorisindeki gerekli logger sýnýflarýný yaratýr ve yönetir.
+     10.5.Logglama iþlemlerimiz için hazýr bir yapý kullandýk. Hazýr yapýmýzý aync olarak deðiþtirdik.
+      10.6.Services klasörü açýlýr. Abstract ve Concrete diye iki tane Klasör Services katmanýna açýlýr.
+       10.7.IPostService interface class'ý açýlýr. Her bir entity operasyonlarýný burada ayarlayacaðýz.
+        10.8.PostService class'ý açýlýr.IPostServices class'ýndan kalýtým alýr. Gerekli metotlarý burada hayata geçiririz.
+
+11.UnitOfWork klasörü açýlýr. Abstract ve Concrete diye iki tane klasör içerisine açýlýr. Böl parçala yönet mantýðý devam etmektedir. IUnitOfWork interface class'ý açýlýr.
+ 11.1.Unit Of Work Design Pattern Nedir? Önce bunu açýklýða kavuþturmak isterim; Bu pattern, iþ katmanýnda yapýlan her deðiþikliðin anlýk olarak database'e yansýmasý yerine, iþlemlerin toplu halde tek bir kanaldan gerçekleþmesini saðlar.Mesela E-ticaret sitelerinde kullanýcý bir ürünü almak için üç aþamayý geçmesi gerekir.Bunlar; Kayýt olma, ürün seçip sepete ekleme, sipariþi onaylama. Kullanýcý ürünü onaylamadan vazgeçebilir.Kullanýcýnýn bütün verilerinin database'e gidip orada gereksiz yer tutmasý mantýk dýþýdýr. Bu yüzden her veri hemen database'e gitmez o verileri oluþturduðumuz transaction'lara atar onay verildiðinde transaction'dan db'ye yollarýz.
+
+  11.2.IUnitOfWork class'ý IDisposable den kalýtým alýr. 
+   11.3.Dispose Nedir? Dispose() metodunun farký þudur; bu metot örneklediðiniz ve referans gösterdiðiniz nesneyi bellekten atar...Bellekten atmak ile kapatmak farklý þeylerdir.Bir nesneyi kapatsanýz dahi o,bellekte kalýr...Bellekten atýlan bir þey ise ne kapatýlabilir,ne de açýlabilir. 
+
+   12.Entitylere user eklemek için Microsoft.Extensions.Identity.Stories eklenir.
+   13.Projede'de yapýlan Mappingler Db'ye eklenmesi için ApplicationDbContext'e eklenir. 
+   13.1.Startup'ta  Açýlan Entitylerin Repositoryleri ile Concrete'leri yani Ef'leri eþitlenir.
+
+
+
+
+
